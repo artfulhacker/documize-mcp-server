@@ -6,7 +6,7 @@ Get up and running with Documize MCP Server in 5 minutes!
 
 - Node.js 18+ installed
 - Documize instance with API access
-- Organization ID, email, and password
+- Domain (usually empty for self-hosted), email, and password
 
 ## Installation
 
@@ -29,22 +29,34 @@ npm run build
 
 ### Step 1: Encode Credentials
 
+The authentication accepts Base64 encoded string with format: `domain:email:password`
+
+**Important:** The `domain` field is usually **empty** for self-hosted single-tenant Documize instances (which is normal for most installations).
+
 ```bash
-echo -n "org-id:email:password" | base64
+# For self-hosted instances (domain is empty - note the leading colon)
+echo -n ":email:password" | base64
 ```
 
-Example:
+Example with real values:
 ```bash
-echo -n "my-org:user@example.com:password123" | base64
-# Output: bXktb3JnOnVzZXJAZXhhbXBsZS5jb206cGFzc3dvcmQxMjM=
+# Self-hosted (domain empty)
+echo -n ":user@example.com:password123" | base64
+# Output: OnVzZXJAZXhhbXBsZS5jb206cGFzc3dvcmQxMjM=
+
+# Multi-tenant (with domain)
+echo -n "my-domain:user@example.com:password123" | base64
+# Output: bXktZG9tYWluOnVzZXJAZXhhbXBsZS5jb206cGFzc3dvcmQxMjM=
 ```
 
 ### Step 2: Create .env File
 
 ```bash
 DOCUMIZE_API_URL=https://your-instance.documize.com
-DOCUMIZE_API_CREDENTIALS=bXktb3JnOnVzZXJAZXhhbXBsZS5jb206cGFzc3dvcmQxMjM=
+DOCUMIZE_API_CREDENTIALS=OnVzZXJAZXhhbXBsZS5jb206cGFzc3dvcmQxMjM=
 ```
+
+**Note:** For self-hosted instances, the domain is typically empty (leading colon in the format).
 
 ## Claude Desktop Setup
 
@@ -87,7 +99,7 @@ Ask Claude:
 ### Authentication Errors
 
 1. Verify credentials are correct
-2. Check organization ID (visible in Documize URL)
+2. Check domain field (usually empty for self-hosted: `:email:password`)
 3. Ensure Base64 encoding has no extra spaces/newlines
 
 ### Connection Issues

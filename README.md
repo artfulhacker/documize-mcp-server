@@ -25,13 +25,17 @@ npm install -g documize-mcp-server
 ### Configuration
 
 1. **Get your Documize credentials**:
-   - Organization ID
+   - Domain (usually empty for self-hosted instances)
    - Email
    - Password
 
 2. **Encode credentials**:
    ```bash
-   echo -n "orgId:email:password" | base64
+   # For self-hosted (domain is empty)
+   echo -n ":email:password" | base64
+   
+   # For multi-tenant (with domain)
+   echo -n "domain:email:password" | base64
    ```
 
 3. **Configure for Claude Desktop**:

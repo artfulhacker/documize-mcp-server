@@ -28,10 +28,16 @@ dotenv.config();
 const API_URL = process.env.DOCUMIZE_API_URL;
 const API_CREDENTIALS = process.env.DOCUMIZE_API_CREDENTIALS;
 
-if (!API_URL || !API_CREDENTIALS) {
-  console.error("Error: DOCUMIZE_API_URL and DOCUMIZE_API_CREDENTIALS must be set in environment variables");
-  console.error("DOCUMIZE_API_CREDENTIALS should be Base64 encoded 'orgId:email:password'");
-  console.error("Example: echo -n 'demo:api@example.org:test' | base64");
+if (!API_URL) {
+  console.error("Missing DOCUMIZE_API_URL environment variable");
+  process.exit(1);
+}
+
+if (!API_CREDENTIALS) {
+  console.error("Missing DOCUMIZE_API_CREDENTIALS environment variable");
+  console.error("DOCUMIZE_API_CREDENTIALS should be Base64 encoded 'domain:email:password'");
+  console.error("Note: domain is usually EMPTY for self-hosted instances");
+  console.error("Example: echo -n ':user@example.com:password' | base64");
   process.exit(1);
 }
 

@@ -9,21 +9,24 @@ echo ""
 
 # Check if credentials are provided
 if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
-    echo "Usage: ./test-auth.sh <org-id> <email> <password> <api-url>"
+    echo "Usage: ./test-auth.sh <domain> <email> <password> <api-url>"
     echo ""
-    echo "Example:"
-    echo "  ./test-auth.sh demo api@example.org test https://demo.documize.com"
+    echo "Note: <domain> is usually EMPTY for self-hosted instances"
+    echo ""
+    echo "Examples:"
+    echo "  Self-hosted: ./test-auth.sh \"\" user@example.com password123 https://docs.mycompany.com"
+    echo "  Multi-tenant: ./test-auth.sh my-domain api@example.org test https://demo.documize.com"
     echo ""
     exit 1
 fi
 
-ORG_ID="$1"
+DOMAIN="$1"
 EMAIL="$2"
 PASSWORD="$3"
 API_URL="${4:-https://demo.documize.com}"
 
 echo "📝 Credentials:"
-echo "  Org ID: $ORG_ID"
+echo "  Domain: ${DOMAIN:-'(empty - self-hosted)'}"
 echo "  Email: $EMAIL"
 echo "  Password: ${PASSWORD:0:3}***"
 echo "  API URL: $API_URL"
@@ -31,8 +34,8 @@ echo ""
 
 # Step 1: Encode credentials
 echo "🔧 Step 1: Encoding credentials..."
-CREDENTIALS=$(echo -n "$ORG_ID:$EMAIL:$PASSWORD" | base64)
-echo "  Format: $ORG_ID:$EMAIL:$PASSWORD"
+CREDENTIALS=$(echo -n "$DOMAIN:$EMAIL:$PASSWORD" | base64)
+echo "  Format: $DOMAIN:$EMAIL:$PASSWORD"
 echo "  Base64: $CREDENTIALS"
 echo ""
 
@@ -53,7 +56,7 @@ if [ "$HTTP_STATUS" != "200" ]; then
     echo "  Response: $RESPONSE_BODY"
     echo ""
     echo "  Common issues:"
-    echo "  - Wrong organization ID"
+    echo "  - Wrong domain (usually empty for self-hosted)"
     echo "  - Incorrect email or password"
     echo "  - API URL is incorrect"
     echo "  - Account doesn't have API access"

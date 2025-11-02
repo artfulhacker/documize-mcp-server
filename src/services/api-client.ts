@@ -15,7 +15,7 @@ export class ApiClient {
 
   constructor(baseURL: string, credentials: string) {
     this.baseURL = baseURL.replace(/\/$/, ""); // Remove trailing slash
-    this.credentials = credentials; // Base64 encoded "orgId:email:password"
+    this.credentials = credentials; // Base64 encoded "domain:email:password" (domain usually empty for self-hosted)
     
     this.client = axios.create({
       baseURL: this.baseURL,
