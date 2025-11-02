@@ -7,7 +7,7 @@ Thanks for your interest in contributing! This is a personal project, but contri
 1. **Fork the repository**
 2. **Clone your fork**:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/documize-mcp-server.git
+   git clone https://github.com/your-username/documize-mcp-server.git
    cd documize-mcp-server
    ```
 3. **Install dependencies**:

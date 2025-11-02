@@ -19,8 +19,8 @@ npm install -g documize-mcp-server
 ### Local Development
 
 ```bash
-git clone https://github.com/yourusername/documize-mcp.git
-cd documize-mcp
+git clone https://github.com/artfulhacker/documize-mcp-server.git
+cd documize-mcp-server
 npm install
 npm run build
 ```
@@ -107,7 +107,7 @@ Ask Claude:
 
 ```bash
 npm run build
-npm run inspect
+npm run inspector
 ```
 
 Use MCP Inspector to test the server.
@@ -120,5 +120,5 @@ Use MCP Inspector to test the server.
 
 ## Support
 
-- GitHub Issues: [Your Issues URL]
-- Documentation: [Your Docs URL]
+- GitHub Issues: https://github.com/artfulhacker/documize-mcp-server/issues
+- Repository: https://github.com/artfulhacker/documize-mcp-server
