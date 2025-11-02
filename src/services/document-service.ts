@@ -2,83 +2,117 @@ import { ApiClient } from "./api-client.js";
 
 export interface Document {
   id: string;
-  spaceId: string;
-  title: string;
+  orgId: string;
+  folderId: string;
+  userId?: string;
+  name: string;
   excerpt?: string;
-  content?: string;
+  tags?: string;
   created: string;
   revised: string;
+  template?: boolean;
+  protection?: number;
+  approval?: number;
+  lifecycle?: number;
 }
 
-export interface CreateDocumentParams {
-  spaceId: string;
+export interface Page {
+  id: string;
+  documentId: string;
   title: string;
-  excerpt?: string;
-  content: string;
+  body: string;
+  contentType: string;
+  pageType: string;
+  level: number;
+  sequence: number;
+  created?: string;
+  revised?: string;
 }
 
 export interface UpdateDocumentParams {
-  title?: string;
+  name?: string;
   excerpt?: string;
-  content?: string;
+  tags?: string;
 }
 
-/**
- * Service for managing Documize documents
- */
+export interface CreatePageParams {
+  documentId: string;
+  title: string;
+  body: string;
+  contentType?: string;
+  pageType?: string;
+  level?: number;
+  sequence?: number;
+}
+
+export interface UpdatePageParams {
+  title?: string;
+  body?: string;
+  contentType?: string;
+  pageType?: string;
+  level?: number;
+  sequence?: number;
+}
+
 export class DocumentService extends ApiClient {
-  /**
-   * Get a document by ID
-   */
-  async getDocument(documentId: string): Promise<Document> {
-    return this.get<Document>(`/api/document/${documentId}`);
-  }
-
-  /**
-   * List all documents in a space
-   */
   async listDocuments(spaceId: string): Promise<Document[]> {
-    return this.get<Document[]>(`/api/space/${spaceId}/document`);
+    return this.get<Document[]>(`/api/documents?space=${spaceId}`);
   }
 
-  /**
-   * Create a new document
-   */
-  async createDocument(params: CreateDocumentParams): Promise<Document> {
-    const payload = {
-      labelId: params.spaceId,
-      title: params.title,
-      excerpt: params.excerpt || "",
-      body: params.content,
-    };
-
-    return this.post<Document>(`/api/document`, payload);
+  async getDocument(documentId: string): Promise<Document> {
+    return this.get<Document>(`/api/documents/${documentId}`);
   }
 
-  /**
-   * Update an existing document
-   */
-  async updateDocument(
-    documentId: string,
-    params: UpdateDocumentParams
-  ): Promise<Document> {
-    // First get the current document to merge changes
-    const current = await this.getDocument(documentId);
-
-    const payload = {
-      ...current,
-      title: params.title || current.title,
-      excerpt: params.excerpt !== undefined ? params.excerpt : current.excerpt,
-      body: params.content || current.content,
-    };
-
-    return this.put<Document>(`/api/document/${documentId}`, payload);
+  async updateDocument(documentId: string, document: Partial<Document>): Promise<Document> {
+    return this.put<Document>(`/api/documents/${documentId}`, document);
   }
 
-  /**
-   * Delete a document
-   */
   async deleteDocument(documentId: string): Promise<void> {
-    await this.delete(`/api/document/${documentId}`);
+    return this.delete(`/api/documents/${documentId}`);
+  }
+
+  async getPages(documentId: string): Promise<Page[]> {
+    return this.get<Page[]>(`/api/documents/${documentId}/pages`);
+  }
+
+  async getPage(documentId: string, pageId: string): Promise<Page> {
+    return this.get<Page>(`/api/documents/${documentId}/pages/${pageId}`);
+  }
+
+  async createPage(params: {
+    documentId: string;
+    title: string;
+    body: string;
+    level?: number;
+    sequence?: number;
+    contentType?: string;
+    pageType?: string;
+  }): Promise<Page> {
+    // API expects nested structure: { page: {...}, meta: {...} }
+    const payload = {
+      page: {
+        documentId: params.documentId,
+        title: params.title,
+        body: params.body,
+        contentType: params.contentType || "wysiwyg",
+        pageType: params.pageType || "section",
+        level: params.level || 1,
+        sequence: params.sequence || 1.0,
+      },
+      meta: {
+        documentId: params.documentId,
+        rawBody: params.body,
+        config: "{}",
+      },
+    };
+    return this.post<Page>(`/api/documents/${params.documentId}/pages`, payload);
+  }
+
+  async updatePage(documentId: string, pageId: string, page: Partial<Page>): Promise<Page> {
+    return this.put<Page>(`/api/documents/${documentId}/pages/${pageId}`, page);
+  }
+
+  async deletePage(documentId: string, pageId: string): Promise<void> {
+    return this.delete(`/api/documents/${documentId}/pages/${pageId}`);
   }
 }

@@ -2,7 +2,7 @@
 .vscode/
 .env
 .env.example
-test-auth.sh
+integration-test.ts
 
 # Source files (we publish compiled JS)
 src/

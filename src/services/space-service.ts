@@ -37,9 +37,19 @@ export class SpaceService extends ApiClient {
   async createSpace(params: CreateSpaceParams): Promise<Space> {
     const payload = {
       name: params.name,
-      desc: params.description || "",
+      cloneId: "",
+      copyTemplate: false,
+      copyPermission: false,
+      copyDocument: false,
     };
 
     return this.post<Space>("/api/space", payload);
+  }
+
+  /**
+   * Delete a space by ID
+   */
+  async deleteSpace(spaceId: string): Promise<void> {
+    return this.delete(`/api/space/${spaceId}`);
   }
 }

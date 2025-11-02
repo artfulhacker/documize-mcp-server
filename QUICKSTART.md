@@ -80,19 +80,76 @@ Edit your Claude Desktop config:
 
 Restart Claude Desktop after saving.
 
-## Test Authentication
-
-```bash
-./test-auth.sh
-```
-
 ## Example Usage
 
-Ask Claude:
+### Basic Queries
+
+Ask Claude or Copilot:
 - "List all my Documize spaces"
 - "Search for documents about API authentication"
-- "Create a document called 'Getting Started' in the Engineering space"
+- "Import this HTML content as a new document in the Engineering space"
 - "Show me document abc123"
+- "Export document xyz789 as PDF"
+
+### Document Management
+
+**Note:** Documents can only be created by importing files (HTML, Markdown, or Word). Direct document creation is not supported by the Documize API.
+
+```
+Import this content into the Engineering space as a new document called "Project Plan":
+<h1>Project Overview</h1>
+<p>This is a test document.</p>
+```
+
+### Page Management
+
+```
+Add a new page to document abc123:
+- Title: "Introduction"
+- Content: "<h1>Welcome</h1><p>This is the intro.</p>"
+- Level: 1
+- Sequence: 1
+```
+
+### Import Documents
+
+**Important:** This is the ONLY way to create new documents in Documize.
+
+```
+Import this markdown file into the Documentation space:
+# Getting Started
+Welcome to our documentation!
+```
+
+### User & Group Management
+
+```
+List all users in the organization
+```
+
+```
+Add user xyz to the Engineering group
+```
+
+### Search
+
+```
+Search for all documents containing "authentication" in the Security space
+```
+
+## All Available Tools (24 Total)
+
+**Documents** (4): get_document, list_documents, update_document, delete_document  
+**Pages** (5): get_pages, get_page, create_page, update_page, delete_page  
+**Spaces** (4): list_spaces, get_space, create_space, delete_space  
+**Users** (3): list_users, create_user, delete_user  
+**Groups** (2): list_groups, join_group, leave_group  
+**Import/Export** (4): import_document, export_pdf, export_html, export_docx  
+**Search** (1): search
+
+**Note:** Documents can only be created via `import_document`. Direct document creation is not supported by the Documize API.
+
+See [docs/API-REFERENCE.md](docs/API-REFERENCE.md) for complete documentation of all tools.
 
 ## Troubleshooting
 

@@ -18,8 +18,10 @@ import {
 import dotenv from "dotenv";
 import { DocumentService } from "./services/document-service.js";
 import { SpaceService } from "./services/space-service.js";
-import { CategoryService } from "./services/category-service.js";
 import { SearchService } from "./services/search-service.js";
+import { UserService } from "./services/user-service.js";
+import { ExportService } from "./services/export-service.js";
+import { ImportService } from "./services/import-service.js";
 
 // Load environment variables
 dotenv.config();
@@ -44,8 +46,10 @@ if (!API_CREDENTIALS) {
 // Initialize services
 const documentService = new DocumentService(API_URL, API_CREDENTIALS);
 const spaceService = new SpaceService(API_URL, API_CREDENTIALS);
-const categoryService = new CategoryService(API_URL, API_CREDENTIALS);
 const searchService = new SearchService(API_URL, API_CREDENTIALS);
+const userService = new UserService(API_URL, API_CREDENTIALS);
+const exportService = new ExportService(API_URL, API_CREDENTIALS);
+const importService = new ImportService(API_URL, API_CREDENTIALS);
 
 // Create MCP server
 const server = new Server(
@@ -93,32 +97,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ["spaceId"],
-        },
-      },
-      {
-        name: "create_document",
-        description: "Create a new document in a space",
-        inputSchema: {
-          type: "object",
-          properties: {
-            spaceId: {
-              type: "string",
-              description: "The space ID where the document will be created",
-            },
-            title: {
-              type: "string",
-              description: "The title of the document",
-            },
-            excerpt: {
-              type: "string",
-              description: "A brief excerpt or description",
-            },
-            content: {
-              type: "string",
-              description: "The document content (supports Markdown)",
-            },
-          },
-          required: ["spaceId", "title", "content"],
         },
       },
       {
@@ -202,37 +180,26 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["name"],
         },
       },
-      // Category tools
       {
-        name: "list_categories",
-        description: "List all categories in a space",
+        name: "import_document",
+        description: "Import/upload a document file to create a new document. Supported formats: HTML (.html, .htm), Markdown (.md, .markdown), Microsoft Word (.doc, .docx)",
         inputSchema: {
           type: "object",
           properties: {
             spaceId: {
               type: "string",
-              description: "The space ID to list categories from",
+              description: "The ID of the space to import the document into",
+            },
+            filename: {
+              type: "string",
+              description: "The filename with extension (e.g., 'document.html', 'notes.md')",
+            },
+            content: {
+              type: "string",
+              description: "The file content as a string",
             },
           },
-          required: ["spaceId"],
-        },
-      },
-      {
-        name: "create_category",
-        description: "Create a new category in a space",
-        inputSchema: {
-          type: "object",
-          properties: {
-            spaceId: {
-              type: "string",
-              description: "The space ID where the category will be created",
-            },
-            name: {
-              type: "string",
-              description: "The name of the category",
-            },
-          },
-          required: ["spaceId", "name"],
+          required: ["spaceId", "filename", "content"],
         },
       },
       // Search tool
@@ -252,6 +219,281 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ["query"],
+        },
+      },
+      // Space delete
+      {
+        name: "delete_space",
+        description: "Delete a space",
+        inputSchema: {
+          type: "object",
+          properties: {
+            spaceId: {
+              type: "string",
+              description: "The space ID to delete",
+            },
+          },
+          required: ["spaceId"],
+        },
+      },
+      // Page tools
+      {
+        name: "get_pages",
+        description: "Get all pages (content) for a document",
+        inputSchema: {
+          type: "object",
+          properties: {
+            documentId: {
+              type: "string",
+              description: "The document ID",
+            },
+          },
+          required: ["documentId"],
+        },
+      },
+      {
+        name: "get_page",
+        description: "Get a specific page from a document",
+        inputSchema: {
+          type: "object",
+          properties: {
+            documentId: {
+              type: "string",
+              description: "The document ID",
+            },
+            pageId: {
+              type: "string",
+              description: "The page ID",
+            },
+          },
+          required: ["documentId", "pageId"],
+        },
+      },
+      {
+        name: "create_page",
+        description: "Create a new page in a document",
+        inputSchema: {
+          type: "object",
+          properties: {
+            documentId: {
+              type: "string",
+              description: "The document ID",
+            },
+            title: {
+              type: "string",
+              description: "The page title",
+            },
+            body: {
+              type: "string",
+              description: "The page content (HTML)",
+            },
+            level: {
+              type: "number",
+              description: "Heading level (1-5)",
+            },
+            sequence: {
+              type: "number",
+              description: "Page sequence number for ordering",
+            },
+          },
+          required: ["documentId", "title", "body", "level", "sequence"],
+        },
+      },
+      {
+        name: "update_page",
+        description: "Update an existing page",
+        inputSchema: {
+          type: "object",
+          properties: {
+            documentId: {
+              type: "string",
+              description: "The document ID",
+            },
+            pageId: {
+              type: "string",
+              description: "The page ID",
+            },
+            title: {
+              type: "string",
+              description: "The new page title",
+            },
+            body: {
+              type: "string",
+              description: "The new page content (HTML)",
+            },
+            level: {
+              type: "number",
+              description: "New heading level",
+            },
+            sequence: {
+              type: "number",
+              description: "New sequence number",
+            },
+          },
+          required: ["documentId", "pageId"],
+        },
+      },
+      {
+        name: "delete_page",
+        description: "Delete a page from a document",
+        inputSchema: {
+          type: "object",
+          properties: {
+            documentId: {
+              type: "string",
+              description: "The document ID",
+            },
+            pageId: {
+              type: "string",
+              description: "The page ID to delete",
+            },
+          },
+          required: ["documentId", "pageId"],
+        },
+      },
+      // User tools
+      {
+        name: "list_users",
+        description: "List all users in the Documize instance",
+        inputSchema: {
+          type: "object",
+          properties: {},
+        },
+      },
+      {
+        name: "create_user",
+        description: "Create a new user",
+        inputSchema: {
+          type: "object",
+          properties: {
+            firstname: {
+              type: "string",
+              description: "User's first name",
+            },
+            lastname: {
+              type: "string",
+              description: "User's last name",
+            },
+            email: {
+              type: "string",
+              description: "User's email address",
+            },
+          },
+          required: ["firstname", "lastname", "email"],
+        },
+      },
+      {
+        name: "delete_user",
+        description: "Delete a user",
+        inputSchema: {
+          type: "object",
+          properties: {
+            userId: {
+              type: "string",
+              description: "The user ID to delete",
+            },
+          },
+          required: ["userId"],
+        },
+      },
+      // Group tools
+      {
+        name: "list_groups",
+        description: "List all groups in the Documize instance",
+        inputSchema: {
+          type: "object",
+          properties: {},
+        },
+      },
+      {
+        name: "join_group",
+        description: "Add a user to a group",
+        inputSchema: {
+          type: "object",
+          properties: {
+            groupId: {
+              type: "string",
+              description: "The group ID",
+            },
+            userId: {
+              type: "string",
+              description: "The user ID to add",
+            },
+          },
+          required: ["groupId", "userId"],
+        },
+      },
+      {
+        name: "leave_group",
+        description: "Remove a user from a group",
+        inputSchema: {
+          type: "object",
+          properties: {
+            groupId: {
+              type: "string",
+              description: "The group ID",
+            },
+            userId: {
+              type: "string",
+              description: "The user ID to remove",
+            },
+          },
+          required: ["groupId", "userId"],
+        },
+      },
+      // Export tools
+      {
+        name: "export_pdf",
+        description: "Export a document as PDF",
+        inputSchema: {
+          type: "object",
+          properties: {
+            spaceId: {
+              type: "string",
+              description: "The space ID containing the document",
+            },
+            documentId: {
+              type: "string",
+              description: "The document ID to export",
+            },
+          },
+          required: ["spaceId", "documentId"],
+        },
+      },
+      {
+        name: "export_html",
+        description: "Export a document as HTML",
+        inputSchema: {
+          type: "object",
+          properties: {
+            spaceId: {
+              type: "string",
+              description: "The space ID containing the document",
+            },
+            documentId: {
+              type: "string",
+              description: "The document ID to export",
+            },
+          },
+          required: ["spaceId", "documentId"],
+        },
+      },
+      {
+        name: "export_docx",
+        description: "Export a document as DOCX",
+        inputSchema: {
+          type: "object",
+          properties: {
+            spaceId: {
+              type: "string",
+              description: "The space ID containing the document",
+            },
+            documentId: {
+              type: "string",
+              description: "The document ID to export",
+            },
+          },
+          required: ["spaceId", "documentId"],
         },
       },
     ],
@@ -295,30 +537,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case "create_document": {
-        const result = await documentService.createDocument({
-          spaceId: args.spaceId as string,
-          title: args.title as string,
-          excerpt: args.excerpt as string,
-          content: args.content as string,
-        });
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
       case "update_document": {
         const result = await documentService.updateDocument(
           args.documentId as string,
           {
-            title: args.title as string | undefined,
+            name: args.title as string | undefined,
             excerpt: args.excerpt as string | undefined,
-            content: args.content as string | undefined,
+            tags: args.tags as string | undefined,
           }
         );
         return {
@@ -383,24 +608,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      // Category operations
-      case "list_categories": {
-        const result = await categoryService.listCategories(args.spaceId as string);
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case "create_category": {
-        const result = await categoryService.createCategory({
-          spaceId: args.spaceId as string,
-          name: args.name as string,
-        });
+      case "import_document": {
+        const result = await importService.importDocument(
+          args.spaceId as string,
+          args.filename as string,
+          args.content as string
+        );
         return {
           content: [
             {
@@ -413,15 +626,240 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       // Search operations
       case "search": {
-        const result = await searchService.search(
-          args.query as string,
-          args.spaceId as string | undefined
+        const result = await searchService.search({
+          keywords: args.query as string,
+          spaceId: args.spaceId as string | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // Space delete operation
+      case "delete_space": {
+        await spaceService.deleteSpace(args.spaceId as string);
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Space deleted successfully",
+            },
+          ],
+        };
+      }
+
+      // Page operations
+      case "get_pages": {
+        const result = await documentService.getPages(args.documentId as string);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get_page": {
+        const result = await documentService.getPage(
+          args.documentId as string,
+          args.pageId as string
         );
         return {
           content: [
             {
               type: "text",
               text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "create_page": {
+        const result = await documentService.createPage({
+          documentId: args.documentId as string,
+          title: args.title as string,
+          body: args.body as string,
+          level: args.level as number,
+          sequence: args.sequence as number,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "update_page": {
+        const result = await documentService.updatePage(
+          args.documentId as string,
+          args.pageId as string,
+          {
+            title: args.title as string | undefined,
+            body: args.body as string | undefined,
+            level: args.level as number | undefined,
+            sequence: args.sequence as number | undefined,
+          }
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "delete_page": {
+        await documentService.deletePage(
+          args.documentId as string,
+          args.pageId as string
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Page deleted successfully",
+            },
+          ],
+        };
+      }
+
+      // User operations
+      case "list_users": {
+        const result = await userService.listUsers();
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "create_user": {
+        const result = await userService.createUser({
+          firstname: args.firstname as string,
+          lastname: args.lastname as string,
+          email: args.email as string,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "delete_user": {
+        await userService.deleteUser(args.userId as string);
+        return {
+          content: [
+            {
+              type: "text",
+              text: "User deleted successfully",
+            },
+          ],
+        };
+      }
+
+      // Group operations
+      case "list_groups": {
+        const result = await userService.listGroups();
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "join_group": {
+        await userService.joinGroup(
+          args.groupId as string,
+          args.userId as string
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: "User joined group successfully",
+            },
+          ],
+        };
+      }
+
+      case "leave_group": {
+        await userService.leaveGroup(
+          args.groupId as string,
+          args.userId as string
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: "User left group successfully",
+            },
+          ],
+        };
+      }
+
+      // Export operations
+      case "export_pdf": {
+        const result = await exportService.exportDocumentAsPdf(
+          args.spaceId as string,
+          args.documentId as string
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: "PDF export completed successfully",
+            },
+          ],
+        };
+      }
+
+      case "export_html": {
+        const result = await exportService.exportDocumentAsHtml(
+          args.spaceId as string,
+          args.documentId as string
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: "HTML export completed successfully",
+            },
+          ],
+        };
+      }
+
+      case "export_docx": {
+        const result = await exportService.exportDocumentAsDocx(
+          args.spaceId as string,
+          args.documentId as string
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: "DOCX export completed successfully",
             },
           ],
         };

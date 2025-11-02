@@ -1,6 +1,6 @@
 {
   "name": "documize-mcp-server",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Model Context Protocol server for Documize API integration",
   "type": "module",
   "bin": {
@@ -10,7 +10,12 @@
     "build": "tsc && chmod +x build/index.js",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "inspector": "npx @modelcontextprotocol/inspector node build/index.js"
+    "inspector": "npx @modelcontextprotocol/inspector node build/index.js",
+    "integration-test": "tsx integration-test.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "mcp",
@@ -39,7 +44,11 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2"
+    "@vitest/coverage-v8": "^4.0.6",
+    "@vitest/ui": "^4.0.6",
+    "tsx": "^4.20.6",
+    "typescript": "^5.7.2",
+    "vitest": "^4.0.6"
   },
   "engines": {
     "node": ">=18.0.0"

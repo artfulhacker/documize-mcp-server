@@ -60,6 +60,17 @@ export class ApiClient {
           }
         }
 
+        // Retry logic for 502 Bad Gateway errors (temporary server issues)
+        if (error.response?.status === 502) {
+          const config = error.config;
+          if (config && !(config as any).__retryCount) {
+            (config as any).__retryCount = 1;
+            // Wait 1 second before retry
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return this.client.request(config);
+          }
+        }
+
         if (error.response) {
           const status = error.response.status;
           const message = error.response.data || error.message;
