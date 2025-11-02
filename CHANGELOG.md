@@ -30,6 +30,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation and sanitization
 - Error handling without information leakage
 
+## [1.0.1] - 2025-11-02
+
+### Fixed
+- Search API endpoint now uses correct HTTP method (POST instead of GET)
+- Search API now sends keywords as JSON body instead of query parameters
+- Fixed 405 Method Not Allowed error when using search tool
+
+### Changed
+- Updated search implementation to match Documize API requirements
+- Improved search tool reliability and error handling
+
 ## [Unreleased]
 
 ### Planned
@@ -46,4 +57,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.0.1]: https://github.com/artfulhacker/documize-mcp-server/releases/tag/v1.0.1
 [1.0.0]: https://github.com/artfulhacker/documize-mcp-server/releases/tag/v1.0.0
