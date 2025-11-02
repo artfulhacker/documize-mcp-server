@@ -1,0 +1,47 @@
+{
+  "name": "documize-mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Documize API integration",
+  "type": "module",
+  "bin": {
+    "documize-mcp-server": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x build/index.js",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "inspector": "npx @modelcontextprotocol/inspector node build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "documize",
+    "documentation",
+    "knowledge-base",
+    "ai",
+    "claude",
+    "copilot"
+  ],
+  "author": "artfulhacker",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/artfulhacker/documize-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/artfulhacker/documize-mcp-server/issues"
+  },
+  "homepage": "https://github.com/artfulhacker/documize-mcp-server#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
