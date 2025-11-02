@@ -18,15 +18,14 @@ export class SearchService extends ApiClient {
    * Search across documents, spaces, and attachments
    */
   async search(query: string, spaceId?: string): Promise<SearchResult[]> {
-    const params: any = {
+    const body: any = {
       keywords: query,
     };
 
     if (spaceId) {
-      params.spaceId = spaceId;
+      body.spaceId = spaceId;
     }
 
-    const queryString = new URLSearchParams(params).toString();
-    return this.get<SearchResult[]>(`/api/search?${queryString}`);
+    return this.post<SearchResult[]>(`/api/search`, body);
   }
 }
